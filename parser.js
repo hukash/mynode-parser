@@ -2,27 +2,27 @@ var sys = require('sys'),
     http = require('http'),
     htmlparser = require('htmlparser');
 
-var website = http.createClient(80, 'www.heise.de');
-var request = website.request('GET', '/', {'host': 'www.heise.de'});
+var website = http.createClient(80, 'www.rgu.de'),
+    request = website.request('GET', '/', {'host': 'www.rgu.de'});
 request.end();
 
-request.on('response', function (response) {
-  console.log('STATUS: ' + response.statusCode);
-  console.log('HEADERS: ' + JSON.stringify(response.headers));
-  response.setEncoding('utf8');
-  response.on('data', function (chunk) {
-    console.log('BODY: ' + chunk);
-  });
-});
-
-var rawHTML = "Xyz <script language= javascript>var foo = '<<bar>>';< /  script><!--<!-- Waah! -- -->";
-
+var counter = 0;
 var handler = new htmlparser.DefaultHandler(function (error, dom) {
-  if (error) { sys.puts("Error"); }
-  else { sys.puts("OK"); }
-});
-
+    if (error) { sys.puts(counter++ + " " + error); }
+    else { sys.puts("OK"); }
+  } 
+  , { verbose: false, ignoreWhitespace:true });
 
 var parser = new htmlparser.Parser(handler);
-parser.parseComplete(rawHTML);
-sys.puts(sys.inspect(handler.dom, false, null));
+
+request.on('response', function(response) {
+  response.setEncoding('utf8');
+  
+  response.on('data', function (chunk) {
+    parser.parseChunk(chunk);
+    var text = htmlparser.DomUtils.getElementsByTagType("text", handler.dom);
+    // shows the whole site
+    //sys.puts(sys.inspect(handler.dom, false, null));
+    sys.puts("text: " + sys.inspect(text, false, null));
+  });
+});
