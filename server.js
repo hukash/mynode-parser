@@ -8,11 +8,15 @@ process.addListener('uncaughtException', function(err, stack){
 var ContentParser = require('./lib/contentparser');
 
 new ContentParser({
-  port: 8000,
-  website: {
-      host: 'www.rgu.de'
-    , port: 80
-    , requestMethod: 'GET'
-    , path: '/'
-  }  
+    port: 8000
+  , website: {
+        host: 'www.rgu.de'
+      , port: 80
+      , requestMethod: 'GET'
+      , path: '/'
+    }
+  , parser: {
+        verbose: false
+      , ignoreWhitespace: true 
+    }
 });
